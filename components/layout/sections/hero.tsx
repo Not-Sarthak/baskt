@@ -34,10 +34,15 @@ export const HeroSection = () => {
           </p>
 
           <div className="space-y-4 md:space-y-0 md:space-x-4">
-            <Button className="w-5/6 md:w-1/4 font-bold group/arrow">
-              Launch App
-              <ArrowRight className="size-5 ml-2 group-hover/arrow:translate-x-1 transition-transform" />
-            </Button>
+            <Link
+              className="w-5/6 md:w-1/4 font-bold group/arrow"
+              href="/dashboard"
+            >
+              <Button className="w-5/6 md:w-1/4 font-bold group/arrow">
+                Launch App
+                <ArrowRight className="size-5 ml-2 group-hover/arrow:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
 
             <Button
               asChild
@@ -48,7 +53,7 @@ export const HeroSection = () => {
                 href="https://github.com/nobruf/shadcn-landing-page.git"
                 target="_blank"
               >
-                Github respository
+                Github Repository
               </Link>
             </Button>
           </div>
@@ -59,7 +64,7 @@ export const HeroSection = () => {
           <Image
             width={1200}
             height={1200}
-            className="w-full md:w-[1200px] mx-auto rounded-lg relative rouded-lg leading-none flex items-center border border-t-2 border-secondary  border-t-primary/30"
+            className="w-full md:w-[1200px] mx-auto rounded-lg relative leading-none flex items-center border border-t-2 border-secondary  border-t-primary/30"
             src={
               theme === "light"
                 ? "/hero-image-light.png"
