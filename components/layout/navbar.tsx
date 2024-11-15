@@ -21,6 +21,7 @@ import Link from "next/link";
 import { ToggleTheme } from "./toogle-theme";
 import { ReferralDrawer } from "../layout/cards/referral";
 import { Toaster } from "sonner";
+import { ConnectButton } from "@mysten/dapp-kit";
 
 interface RouteProps {
   href: string;
@@ -145,6 +146,7 @@ export const Navbar = () => {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
+        <ConnectButton />
 
         <div className="hidden lg:flex">
           <ToggleTheme />
@@ -162,7 +164,10 @@ export const Navbar = () => {
 
       {/* Referral Drawer */}
       <Sheet open={isReferralOpen} onOpenChange={setIsReferralOpen}>
-        <ReferralDrawer isOpen={isReferralOpen} onClose={() => setIsReferralOpen(false)} />
+        <ReferralDrawer
+          isOpen={isReferralOpen}
+          onClose={() => setIsReferralOpen(false)}
+        />
       </Sheet>
     </>
   );
