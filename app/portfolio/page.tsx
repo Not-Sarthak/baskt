@@ -24,7 +24,6 @@ interface TokenHolding {
   color: string;
 }
 
-// Configuration for tokens we want to track
 const TOKENS: TokenConfig[] = [
   {
     symbol: "SUI",
