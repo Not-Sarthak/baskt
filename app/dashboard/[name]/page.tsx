@@ -9,6 +9,19 @@ import Image from "next/image";
 import React, { useState, useCallback, useEffect } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { BasketDialog } from "@/components/layout/cards/basket-dialog";
+import {
+  coinWithBalance,
+  Transaction,
+  TransactionObjectArgument,
+} from "@mysten/sui/transactions";
+import { buildTx, getQuote } from "@7kprotocol/sdk-ts";
+import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
+import {
+  ConnectButton,
+  useCurrentAccount,
+  useSignAndExecuteTransaction,
+} from "@mysten/dapp-kit";
+import { toast } from "sonner";
 
 const createConfetti = () => {
   const container = document.createElement("div");
@@ -73,6 +86,9 @@ interface PageProps {
 
 export default function BasketDetailPage({ params }: PageProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+  const [digest, setDigest] = useState("");
+  const currentAccount = useCurrentAccount();
 
   const basket = baskets.find(
     (b) => b.name.toLowerCase().replace(/\s+/g, "-") === params.name
@@ -81,6 +97,119 @@ export default function BasketDetailPage({ params }: PageProps) {
   if (!basket) {
     notFound();
   }
+  const USDC_TYPE =
+    "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC";
+  const multiBuy = async () => {
+    try {
+      const client = new SuiClient({ url: getFullnodeUrl("mainnet") });
+      let txb = new Transaction();
+
+      // Split coins with proper amounts
+      let [part1, part2, part3] = txb.splitCoins(
+        txb.gas,
+        [100000000, 300000000, 200000000]
+      );
+
+      const quoteParams = [
+        {
+          tokenIn: "0x2::sui::SUI",
+          tokenOut:
+            "0xd0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH",
+          // tokenOut:
+          //   "0x76cb819b01abed502bee8a702b4c2d547532c12f25001c9dea795a5e631c26f1::fud::FUD",
+          amountIn: "100000000",
+        },
+        {
+          tokenIn: "0x2::sui::SUI",
+          tokenOut:
+            "0x7016aae72cfc67f2fadf55769c0a7dd54291a583b63051a5ed71081cce836ac6::sca::SCA",
+          amountIn: "300000000",
+        },
+        {
+          tokenIn: "0x2::sui::SUI",
+          tokenOut:
+            "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+          amountIn: "200000000",
+        },
+      ];
+
+      // Fetch quotes concurrently
+      const [quote1, quote2, quote3] = await Promise.all(
+        quoteParams.map((params) => getQuote(params))
+      );
+
+      const commonParams = {
+        accountAddress:
+          "0x9d655392521726d0eb26915670f7a37fe78b6fe001d133280ddaf57e4428aae1",
+        slippage: 0.01,
+        commission: {
+          partner:
+            "0x89960536d44ae8078f08aa442c0aa3081c0cf21b6bcca5597951f1671642af75",
+          commissionBps: 0,
+        },
+      };
+
+      // First swap
+      let { tx: extendTx1, coinOut: coinOut1 } = await buildTx({
+        quoteResponse: quote1,
+        extendTx: { tx: txb, coinIn: part1 },
+        ...commonParams,
+      });
+
+      // Second swap
+      let { tx: extendTx2, coinOut: coinOut2 } = await buildTx({
+        quoteResponse: quote2,
+        extendTx: { tx: extendTx1, coinIn: part2 },
+        ...commonParams,
+      });
+
+      // Third swap
+      let { tx: finalTx, coinOut: coinOut3 } = await buildTx({
+        quoteResponse: quote3,
+        extendTx: { tx: extendTx2, coinIn: part3 },
+        ...commonParams,
+      });
+
+      // Handle coin outputs
+      if (coinOut1 && coinOut2 && coinOut3) {
+        // Transfer swapped tokens to user
+        finalTx.transferObjects(
+          [coinOut1, coinOut2, coinOut3],
+          commonParams.accountAddress
+        );
+
+        // Transfer potentially remaining coins back to user
+        finalTx.transferObjects(
+          [part1, part2, part3].filter(Boolean),
+          commonParams.accountAddress
+        );
+      } else {
+        throw new Error("One or more coin outputs are undefined");
+      }
+
+      // Set gas budget and execute
+      finalTx.setGasBudget(100000000);
+
+      const response = await signAndExecuteTransaction(
+        {
+          transaction: finalTx,
+          chain: "sui:mainnet",
+        },
+
+        {
+          onSuccess: (result) => {
+            console.log("executed transaction", result);
+            setDigest(result.digest);
+          },
+        }
+      );
+
+      return response;
+    } catch (err) {
+      console.error("Transaction failed:", err);
+      throw err;
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -168,6 +297,7 @@ export default function BasketDetailPage({ params }: PageProps) {
                 bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-400
                 hover:scale-[1.02] hover:shadow-lg hover:from-indigo-500 hover:via-blue-400 hover:to-indigo-300
                 active:scale-[0.98]"
+                onClick={multiBuy}
               >
                 <div className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative z-10">Instant Buy</span>
