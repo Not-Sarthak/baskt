@@ -54,6 +54,26 @@ const TOKENS: TokenConfig[] = [
     color: "#FFBB28",
     decimals: 8,
   },
+  {
+    symbol: "DEEP",
+    name: "Deep",
+    coinType:
+      "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+    pythId:
+      "0xe18bf5fa857d5ca8af1f6a458b26e853ecdc78fc2f3dc17f4821374ad94d8327",
+    color: "#FFBB28",
+    decimals: 6,
+  },
+  {
+    symbol: "Scallop",
+    name: "SCA",
+    coinType:
+      "0x7016aae72cfc67f2fadf55769c0a7dd54291a583b63051a5ed71081cce836ac6::sca::SCA",
+    pythId:
+      "0xeacabc6304d11fc10a757f63286ef44415d8e91b7a1a525ae94a7ec9398b73f3",
+    color: "#FFBB28",
+    decimals: 9,
+  },
 ];
 
 const PortfolioPage = () => {
