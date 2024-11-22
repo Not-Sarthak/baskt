@@ -335,9 +335,11 @@ export default function BasketDetailPage({ params }: PageProps) {
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gray-200 dark:bg-card rounded-full flex items-center justify-center">
                         {coin.iconUrl ? (
-                          <img
+                          <Image
                             src={coin.iconUrl}
                             alt={coin.name}
+                            width={6}
+                            height={6}
                             className="w-6 h-6"
                           />
                         ) : (
