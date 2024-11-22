@@ -54,16 +54,16 @@ const TOKENS: TokenConfig[] = [
     color: "#FFBB28",
     decimals: 8,
   },
-  {
-    symbol: "DEEP",
-    name: "Deep",
-    coinType:
-      "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
-    pythId:
-      "0xe18bf5fa857d5ca8af1f6a458b26e853ecdc78fc2f3dc17f4821374ad94d8327",
-    color: "#FFBB28",
-    decimals: 6,
-  },
+  // {
+  //   symbol: "DEEP",
+  //   name: "Deep",
+  //   coinType:
+  //     "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
+  //   pythId:
+  //     "0xe18bf5fa857d5ca8af1f6a458b26e853ecdc78fc2f3dc17f4821374ad94d8327",
+  //   color: "#FFBB28",
+  //   decimals: 6,
+  // },
   {
     symbol: "Scallop",
     name: "SCA",

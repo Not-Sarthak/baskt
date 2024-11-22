@@ -41,6 +41,10 @@ const routeList: RouteProps[] = [
     href: "#",
     label: "Referral",
   },
+  {
+    href: "/portfolio",
+    label: "Portfolio",
+  },
 ];
 
 export const Navbar = () => {

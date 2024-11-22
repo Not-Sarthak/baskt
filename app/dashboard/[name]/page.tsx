@@ -213,7 +213,7 @@ export default function BasketDetailPage({ params }: PageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pt-10">
+      <div className="flex px-10 justify-between gap-4 mb-8 pt-10">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard"
