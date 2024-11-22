@@ -13,6 +13,7 @@ import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Toaster, toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 interface Coin {
   name: string;
@@ -55,23 +56,23 @@ const TOKEN_MAP: Record<string, string> = {
 };
 
 const createConfetti = () => {
-  const container = document.createElement('div');
-  container.className = 'confetti-container';
+  const container = document.createElement("div");
+  container.className = "confetti-container";
   document.body.appendChild(container);
 
-  const colors = ['#00ff00', '#0099ff', '#ff0000', '#ffff00', '#ff00ff'];
-  const shapes = ['square', 'circle'];
+  const colors = ["#00ff00", "#0099ff", "#ff0000", "#ffff00", "#ff00ff"];
+  const shapes = ["square", "circle"];
 
   const confettiCount = 100;
   const confettiElements: HTMLDivElement[] = [];
 
   for (let i = 0; i < confettiCount; i++) {
-    const element = document.createElement('div');
+    const element = document.createElement("div");
     const color = colors[Math.floor(Math.random() * colors.length)];
     const shape = shapes[Math.floor(Math.random() * shapes.length)];
-    
+
     element.className = `confetti confetti--animation-${
-      ['slow', 'medium', 'fast'][Math.floor(Math.random() * 3)]
+      ["slow", "medium", "fast"][Math.floor(Math.random() * 3)]
     }`;
 
     element.style.cssText = `
@@ -79,7 +80,7 @@ const createConfetti = () => {
       width: ${Math.random() * 10 + 5}px;
       height: ${Math.random() * 10 + 5}px;
       left: ${Math.random() * 100}vw;
-      border-radius: ${shape === 'circle' ? '50%' : '0'};
+      border-radius: ${shape === "circle" ? "50%" : "0"};
       transform: rotate(${Math.random() * 360}deg);
     `;
 
@@ -99,8 +100,14 @@ const createConfetti = () => {
   }, 2500);
 };
 
-export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOpenChange }) => {
-  const [allocations, setAllocations] = useState(basket.coins.map((c) => c.percentage));
+export const BasketDialog: React.FC<BasketDialogProps> = ({
+  basket,
+  isOpen,
+  onOpenChange,
+}) => {
+  const [allocations, setAllocations] = useState(
+    basket.coins.map((c) => c.percentage)
+  );
   const [investment, setInvestment] = useState(100);
   const [swapResults, setSwapResults] = useState<SwapResult[]>([]);
   const [isSwapping, setIsSwapping] = useState(false);
@@ -121,12 +128,17 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
     }
   }, []);
 
-  const performSwap = async (tokenOut: string, amount: string): Promise<SwapResult> => {
+  const performSwap = async (
+    tokenOut: string,
+    amount: string
+  ): Promise<SwapResult> => {
     const wallet = checkWallet();
     if (!wallet) return { status: "error", error: "No wallet connected" };
 
     try {
-      const toastId = toast.loading(`Swapping ${amount} USDC for ${tokenOut}...`);
+      const toastId = toast.loading(
+        `Swapping ${amount} USDC for ${tokenOut}...`
+      );
 
       const keyPair = Ed25519Keypair.fromSecretKey(wallet.privateKey);
       const quoteResponse = await getQuote({
@@ -140,7 +152,8 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
         accountAddress: wallet.address,
         slippage: 0.01,
         commission: {
-          partner: "0x89960536d44ae8078f08aa442c0aa3081c0cf21b6bcca5597951f1671642af75",
+          partner:
+            "0x89960536d44ae8078f08aa442c0aa3081c0cf21b6bcca5597951f1671642af75",
           commissionBps: 0,
         },
       });
@@ -155,7 +168,9 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
       });
 
       if (response.effects?.status?.status !== "success") {
-        throw new Error(response.effects?.status?.error || "Transaction failed");
+        throw new Error(
+          response.effects?.status?.error || "Transaction failed"
+        );
       }
 
       toast.success("Swap successful!", { id: toastId });
@@ -172,9 +187,9 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
 
     setIsSwapping(true);
     setSwapResults([]);
-    
+
     const mainToastId = toast.loading("Starting basket purchase...");
-    
+
     let success = true;
     for (let i = 0; i < basket.coins.length; i++) {
       const coin = basket.coins[i];
@@ -185,17 +200,19 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
     }
 
     setIsSwapping(false);
-    
+
     if (success) {
       toast.success("Basket purchased successfully! 🎉", { id: mainToastId });
       createConfetti();
     } else {
-      toast.error("Some swaps failed. Please check the results below.", { id: mainToastId });
+      toast.error("Some swaps failed. Please check the results below.", {
+        id: mainToastId,
+      });
     }
   };
 
   const handleSliderChange = useCallback((newValue: number, index: number) => {
-    setAllocations(prevAllocations => {
+    setAllocations((prevAllocations) => {
       const newAllocations = [...prevAllocations];
       const diff = newValue - newAllocations[index];
 
@@ -203,7 +220,7 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
         { length: newAllocations.length },
         (_, i) => i
       ).filter((i) => i !== index);
-      
+
       const totalRemaining = remainingIndices.reduce(
         (sum, i) => sum + newAllocations[i],
         0
@@ -223,13 +240,13 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
 
   return (
     <>
-      <Toaster 
+      <Toaster
         position="bottom-right"
         toastOptions={{
           style: {
-            background: 'rgb(var(--background))',
-            color: 'rgb(var(--foreground))',
-            border: '1px solid rgb(var(--border))',
+            background: "rgb(var(--background))",
+            color: "rgb(var(--foreground))",
+            border: "1px solid rgb(var(--border))",
           },
         }}
       />
@@ -259,15 +276,19 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {coin.iconUrl && (
-                      <img 
-                        src={coin.iconUrl} 
-                        alt={coin.name} 
+                      <Image
+                        src={coin.iconUrl}
+                        alt={coin.name}
+                        width={6}
+                        height={6}
                         className="w-6 h-6 rounded-full"
                       />
                     )}
                     <span className="font-medium">{coin.symbol}</span>
                   </div>
-                  <span className="font-medium">{allocations[index].toFixed(1)}%</span>
+                  <span className="font-medium">
+                    {allocations[index].toFixed(1)}%
+                  </span>
                 </div>
                 <Slider
                   value={[allocations[index]]}
@@ -277,20 +298,25 @@ export const BasketDialog: React.FC<BasketDialogProps> = ({ basket, isOpen, onOp
                   className="w-full"
                 />
                 <div className="text-sm text-muted-foreground">
-                  ≈ {((investment * allocations[index]) / 100).toFixed(2)} USDC (
-                  {((investment * allocations[index]) / 100 / coin.price).toFixed(2)}{" "}
+                  ≈ {((investment * allocations[index]) / 100).toFixed(2)} USDC
+                  (
+                  {(
+                    (investment * allocations[index]) /
+                    100 /
+                    coin.price
+                  ).toFixed(2)}{" "}
                   {coin.symbol})
                 </div>
               </div>
             ))}
           </div>
 
-          <Button 
+          <Button
             className="w-full relative overflow-hidden transition-all duration-300
               bg-gradient-to-r from-green-500 via-emerald-400 to-teal-400
               hover:from-green-400 hover:via-emerald-300 hover:to-teal-300
               disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={buyBasket} 
+            onClick={buyBasket}
             disabled={isSwapping}
           >
             {isSwapping ? (
